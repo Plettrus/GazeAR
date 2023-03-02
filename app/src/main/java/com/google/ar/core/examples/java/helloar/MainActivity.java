@@ -735,13 +735,10 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
     MotionEvent tap = tapHelper.poll();
     if (camera.getTrackingState() == TrackingState.TRACKING) {
       List<HitResult> hitResultList;
-      //xTapped = tap.getX();
-      //yTapped = tap.getY();2
       Log.i(TAG, "xGaze: " + xGaze + " LastXGaze: " + LastXGaze);
       Log.i(TAG, "yGaze: " + yGaze + " LastYGaze: " + LastYGaze);
       if((xGaze <= LastXGaze + 100 && xGaze > LastXGaze - 100) && (yGaze <= LastYGaze + 100 && yGaze > LastYGaze - 100)) {
         counter++;
-        Log.i(TAG, "COUNTER DENTRO L'IF: " + counter);
         if (counter > 75 && flagPlacement == false && LastXGaze != 0){
           showToast("Elemento Posizionato", true);
           flagPlacement = true;
