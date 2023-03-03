@@ -74,12 +74,6 @@
                     android:layout_height="wrap_content"
                     android:text="start calibration" />
 
-                <Button
-                    android:id="@+id/btn_set_calibration"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="set calibration" />
-
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

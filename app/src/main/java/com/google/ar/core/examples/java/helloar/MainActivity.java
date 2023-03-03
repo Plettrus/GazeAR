@@ -189,16 +189,11 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
   // was not changed.  Do this using the timestamp since we can't compare PointCloud objects.
   private long lastPointCloudTimestamp = 0;
 
-  // Virtual object (ARCore pawn)
-  private Mesh virtualObjectMesh;
+  // Virtual object (ARCore CampoDiCorvi)
   private Mesh virtualObjectMeshCampoDiCorvi;
-  private Shader virtualObjectShader;
   private Shader virtualObjectShaderCampoDiCorvi;
   private Texture virtualObjectAlbedoTextureCampoDiCorvi;
-  private Texture virtualObjectAlbedoTextureNotteStellata;
   private Texture virtualObjectAlbedoInstantPlacementTextureCampoDiCorvi;
-  private Texture virtualObjectAlbedoInstantPlacementTextureNotteStellata;
-  private int randomNumber;
 
   private final List<WrappedAnchor> wrappedAnchors = new ArrayList<>();
 
@@ -234,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
   private View layoutProgress;
   private CalibrationViewer viewCalibration;
   private PointView viewPoint;
-  private Button btnStartCalibration,btnSetCalibration;
+  private Button btnStartCalibration;
   private View viewWarningTracking;
   private ViewLayoutChecker viewLayoutChecker = new ViewLayoutChecker();
 
@@ -517,38 +512,7 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
               Texture.WrapMode.CLAMP_TO_EDGE,
               Texture.ColorFormat.SRGB);
 
-      // Virtual object to render (ARCore notteStellata)
-      virtualObjectAlbedoTextureNotteStellata =
-              Texture.createFromAsset(
-                      render,
-                      "models/notteStellata.png",
-                      Texture.WrapMode.CLAMP_TO_EDGE,
-                      Texture.ColorFormat.SRGB);
-      virtualObjectAlbedoInstantPlacementTextureNotteStellata =
-              Texture.createFromAsset(
-                      render,
-                      "models/notteStellata.png",
-                      Texture.WrapMode.CLAMP_TO_EDGE,
-                      Texture.ColorFormat.SRGB);
-
-
-      virtualObjectMesh = Mesh.createFromAsset(render, "models/quadroModificato.obj");
       virtualObjectMeshCampoDiCorvi = Mesh.createFromAsset(render, "models/quadroModificato.obj");
-      virtualObjectShader =
-          Shader.createFromAssets(
-                  render,
-                  "shaders/environmental_hdr.vert",
-                  "shaders/environmental_hdr.frag",
-                  /*defines=*/ new HashMap<String, String>() {
-                    {
-                      put(
-                          "NUMBER_OF_MIPMAP_LEVELS",
-                          Integer.toString(cubemapFilter.getNumberOfMipmapLevels()));
-                    }
-                  })
-              .setTexture("u_AlbedoTexture", virtualObjectAlbedoTextureNotteStellata)
-              .setTexture("u_Cubemap", cubemapFilter.getFilteredCubemapTexture())
-              .setTexture("u_DfgTexture", dfgTexture);
 
       virtualObjectShaderCampoDiCorvi =
               Shader.createFromAssets(
@@ -704,26 +668,18 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
       Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0);
       Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0);
 
-      // Update shader properties and draw
-      virtualObjectShader.setMat4("u_ModelView", modelViewMatrix);
-      virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix);
-
       virtualObjectShaderCampoDiCorvi.setMat4("u_ModelView", modelViewMatrix);
       virtualObjectShaderCampoDiCorvi.setMat4("u_ModelViewProjection", modelViewProjectionMatrix);
 
       if (trackable instanceof InstantPlacementPoint
           && ((InstantPlacementPoint) trackable).getTrackingMethod()
               == InstantPlacementPoint.TrackingMethod.SCREENSPACE_WITH_APPROXIMATE_DISTANCE) {
-          virtualObjectShader.setTexture("u_AlbedoTexture", virtualObjectAlbedoInstantPlacementTextureNotteStellata);
           virtualObjectShaderCampoDiCorvi.setTexture("u_AlbedoTexture", virtualObjectAlbedoInstantPlacementTextureCampoDiCorvi);
       } /* else {
         virtualObjectShader.setTexture("u_AlbedoTexture", virtualObjectAlbedoTextureNotteStellata);
       } */
 
-      if(randomNumber == 0)
-        render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer);
-      else
-        render.draw(virtualObjectMeshCampoDiCorvi, virtualObjectShaderCampoDiCorvi, virtualSceneFramebuffer);
+      render.draw(virtualObjectMeshCampoDiCorvi, virtualObjectShaderCampoDiCorvi, virtualSceneFramebuffer);
     }
 
     // Compose the virtual scene with the background.
@@ -742,9 +698,6 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
         if (counter > 75 && flagPlacement == false && LastXGaze != 0){
           showToast("Elemento Posizionato", true);
           flagPlacement = true;
-          double random = Math.random()*2;
-          randomNumber = (int)random;
-          //showToast("randomNumber: " + randomNumber, true);
           if (instantPlacementSettings.isInstantPlacementEnabled()) {
             hitResultList =
                     frame.hitTestInstantPlacement(xGaze, yGaze, APPROXIMATE_DISTANCE_METERS);
@@ -895,16 +848,13 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
   /** Update state based on the current frame's light estimation. */
   private void updateLightEstimation(LightEstimate lightEstimate, float[] viewMatrix) {
     if (lightEstimate.getState() != LightEstimate.State.VALID) {
-      virtualObjectShader.setBool("u_LightEstimateIsValid", false);
       virtualObjectShaderCampoDiCorvi.setBool("u_LightEstimateIsValid", false);
       return;
     }
-    virtualObjectShader.setBool("u_LightEstimateIsValid", true);
     virtualObjectShaderCampoDiCorvi.setBool("u_LightEstimateIsValid", true);
 
 
     Matrix.invertM(viewInverseMatrix, 0, viewMatrix, 0);
-    virtualObjectShader.setMat4("u_ViewInverse", viewInverseMatrix);
     virtualObjectShaderCampoDiCorvi.setMat4("u_ViewInverse", viewInverseMatrix);
 
     updateMainLight(
@@ -922,8 +872,6 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
     worldLightDirection[1] = direction[1];
     worldLightDirection[2] = direction[2];
     Matrix.multiplyMV(viewLightDirection, 0, viewMatrix, 0, worldLightDirection, 0);
-    virtualObjectShader.setVec4("u_ViewLightDirection", viewLightDirection);
-    virtualObjectShader.setVec3("u_LightIntensity", intensity);
     virtualObjectShaderCampoDiCorvi.setVec4("u_ViewLightDirection", viewLightDirection);
     virtualObjectShaderCampoDiCorvi.setVec3("u_LightIntensity", intensity);
   }
@@ -952,8 +900,6 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
     for (int i = 0; i < 9 * 3; ++i) {
       sphericalHarmonicsCoefficients[i] = coefficients[i] * sphericalHarmonicFactors[i / 3];
     }
-    virtualObjectShader.setVec3Array(
-        "u_SphericalHarmonicsCoefficients", sphericalHarmonicsCoefficients);
     virtualObjectShaderCampoDiCorvi.setVec3Array(
             "u_SphericalHarmonicsCoefficients", sphericalHarmonicsCoefficients);
   }
@@ -983,9 +929,6 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
     btnStartCalibration = findViewById(R.id.btn_start_calibration);
     btnStartCalibration.setOnClickListener(onClickListener);
 
-    btnSetCalibration = findViewById(R.id.btn_set_calibration);
-    btnSetCalibration.setOnClickListener(onClickListener);
-
     viewPoint = findViewById(R.id.view_point);
     viewCalibration = findViewById(R.id.view_calibration);
 
@@ -1002,9 +945,6 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
       if (v == btnStartCalibration) {
         startTracking();
         startCalibration();
-      } else if (v == btnSetCalibration) {
-        setCalibration();
-        showToast("hai premuto setCalibration", true);
       }
     }
   };
@@ -1028,7 +968,6 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
       @Override
       public void run() {
         btnStartCalibration.setEnabled(isTrackerValid());
-        btnSetCalibration.setEnabled(isTrackerValid());
         // Better be safe than sorry
         if (!isTracking()) {
           hideCalibrationView();
