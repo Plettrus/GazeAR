@@ -5,7 +5,7 @@ GazeAR utilizes gaze tracking technology to apply augmented reality to a user's 
 The project includes code for both tha gaze tracking software and the augmented reality overlay, futhermore uses both the front and the back camera of a smartphone. 
 Developers can use this code as starting point for creating their own gaze tracking augmented reality applications. 
 
-GazeAR has the potential to be used ina variety of application, from gaming and entertainment to education and training. For example, a game could use the technology to create an immersive experience where the player must use their gaze to interact with the game world.
+GazeAR has the potential to be used in a variety of application, from gaming and entertainment to education and training. For example, a game could use the technology to create an immersive experience where the player must use their gaze to interact with the game world.
 
 Overall, GazeAR is an exciting project that demonstrates the power of combining gaze tracking technology with augmented reality.
 
@@ -39,4 +39,7 @@ Get a license key from https://manage.seeso.io and copy your key to [`GazeTracke
 String SEESO_LICENSE_KEY = "your license key";
 ```
 You can find more information about this step in https://github.com/visualcamp/seeso-sample-android.
+
+## Example
+![Preview GIF](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTFiM2E5ODhjNTRkNWZlYzUxYTVkNzg1N2ZjNzM3YWFkM2YxMjNjOSZjdD1n/PAf2XpCuBrtyotH1Wn/giphy-downsized.gif)
  
